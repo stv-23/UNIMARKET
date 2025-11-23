@@ -66,7 +66,18 @@ function ChatContent() {
       }
     };
 
+    const markAsRead = async () => {
+      try {
+        await fetch(`/api/chat/${selectedConversation.id}/read`, {
+          method: "PATCH",
+        });
+      } catch (error) {
+        console.error("Error marking messages as read", error);
+      }
+    };
+
     fetchMessages();
+    markAsRead(); // Mark messages as read when opening conversation
     const interval = setInterval(fetchMessages, 3000); // Poll for new messages
     return () => clearInterval(interval);
   }, [selectedConversation]);
