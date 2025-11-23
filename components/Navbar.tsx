@@ -14,6 +14,7 @@ interface User {
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -31,6 +32,27 @@ export default function Navbar() {
     fetchUser();
   }, []);
 
+  // Poll for unread messages
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await fetch("/api/chat/unread");
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error("Error fetching unread count", error);
+      }
+    };
+
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [user]);
+
   if (pathname === "/") return null;
 
   // Show login/register buttons only on auth pages
@@ -38,7 +60,7 @@ export default function Navbar() {
 
   return (
     <>
-      <UserSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+      <UserSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} unreadCount={unreadCount} />
       
       <nav className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -74,8 +96,13 @@ export default function Navbar() {
                     <Link href="/market" className="text-muted-foreground hover:text-primary inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-primary text-sm font-medium transition-colors">
                       Mercado
                     </Link>
-                    <Link href="/chat" className="text-muted-foreground hover:text-primary inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-primary text-sm font-medium transition-colors">
+                    <Link href="/chat" className="text-muted-foreground hover:text-primary inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-primary text-sm font-medium transition-colors relative">
                       Chat
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-2 bg-destructive text-destructive-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
                     </Link>
                   </>
                 )}

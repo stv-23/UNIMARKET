@@ -13,9 +13,10 @@ interface UserSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
+  unreadCount?: number;
 }
 
-export default function UserSidebar({ isOpen, onClose, user }: UserSidebarProps) {
+export default function UserSidebar({ isOpen, onClose, user, unreadCount = 0 }: UserSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -101,12 +102,13 @@ export default function UserSidebar({ isOpen, onClose, user }: UserSidebarProps)
             <div className="space-y-1">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href;
+                const isMessages = item.href === "/chat";
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors relative ${
                       isActive
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -114,6 +116,11 @@ export default function UserSidebar({ isOpen, onClose, user }: UserSidebarProps)
                   >
                     <span className="text-xl">{item.icon}</span>
                     <span>{item.label}</span>
+                    {isMessages && unreadCount > 0 && (
+                      <span className="ml-auto bg-destructive text-destructive-foreground text-xs font-bold rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
