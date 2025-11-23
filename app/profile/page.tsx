@@ -10,6 +10,10 @@ export default function ProfilePage() {
   const [activeProducts, setActiveProducts] = useState<any[]>([]);
   const [soldProducts, setSoldProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,11 +46,43 @@ export default function ProfilePage() {
     fetchData();
   }, [router]);
 
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      setDeleteError("Por favor ingresa tu contraseña");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetch("/api/auth/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: deletePassword }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Redirigir al home después de eliminar la cuenta
+        router.push("/");
+      } else {
+        setDeleteError(data.error || "Error al eliminar la cuenta");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setDeleteError("Error al eliminar la cuenta");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading) return <div className="p-8 text-center">Cargando perfil...</div>;
   if (!user) return null;
 
   return (
-
+    <>
     <main className="max-w-7xl mx-auto px-4 py-12 min-h-screen bg-background">
       {/* User Info */}
       <div className="bg-card shadow-xl border border-border overflow-hidden sm:rounded-xl mb-12">
@@ -92,12 +128,28 @@ export default function ProfilePage() {
               </div>
             )}
             {user.bio && (
-              <div className="bg-card px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
+              <div className="bg-card px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8 border-b border-border">
                 <dt className="text-sm font-medium text-muted-foreground">Biografía</dt>
                 <dd className="mt-1 text-sm text-foreground sm:mt-0 sm:col-span-2 whitespace-pre-wrap leading-relaxed">{user.bio}</dd>
               </div>
             )}
           </dl>
+        </div>
+        
+        {/* Delete Account Section */}
+        <div className="bg-destructive/5 px-6 py-5 sm:px-8 border-t border-destructive/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-medium text-destructive">Zona de Peligro</h4>
+              <p className="mt-1 text-xs text-muted-foreground">Eliminar tu cuenta es permanente y no se puede deshacer.</p>
+            </div>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors shadow-md"
+            >
+              Eliminar Cuenta
+            </button>
+          </div>
         </div>
       </div>
       
@@ -168,5 +220,67 @@ export default function ProfilePage() {
         )}
       </div>
     </main>
+
+    {/* Delete Account Modal */}
+    {showDeleteModal && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-card border border-border rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+          <h3 className="text-xl font-bold text-destructive mb-2">¿Eliminar tu cuenta?</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Esta acción es <strong>permanente</strong> y no se puede deshacer. Todos tus datos, productos y mensajes serán eliminados.
+          </p>
+          
+          <div className="mb-6">
+            <label htmlFor="delete-password" className="block text-sm font-medium text-foreground mb-2">
+              Confirma tu contraseña
+            </label>
+            <input
+              id="delete-password"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-destructive text-foreground"
+              placeholder="Ingresa tu contraseña"
+              disabled={isDeleting}
+            />
+            {deleteError && (
+              <p className="mt-2 text-sm text-destructive">{deleteError}</p>
+            )}
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeletePassword("");
+                setDeleteError("");
+              }}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Eliminando...
+                </>
+              ) : (
+                "Eliminar Cuenta"
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
