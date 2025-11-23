@@ -40,7 +40,8 @@ function ResetPasswordContent() {
       } else {
         setError(data.error || "Error al restablecer la contraseña");
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error resetting password:", err);
       setError("Error de conexión");
     } finally {
       setLoading(false);

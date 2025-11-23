@@ -28,7 +28,8 @@ export default function ForgotPasswordPage() {
       } else {
         setError(data.error || "Error al enviar el correo");
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error sending reset email:", err);
       setError("Error de conexión");
     } finally {
       setLoading(false);

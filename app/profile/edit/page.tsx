@@ -89,7 +89,8 @@ export default function EditProfilePage() {
         const data = await res.json();
         setError(data.message || "Error al actualizar perfil");
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error updating profile:", err);
       setError("Error de conexión");
     } finally {
       setSaving(false);

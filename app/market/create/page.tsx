@@ -123,7 +123,7 @@ export default function CreateProductPage() {
             className="block w-full bg-input border border-border rounded-lg shadow-sm py-3 px-4 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
           >
             <option value="">Selecciona una categoría</option>
-            {categories.map((cat: any) => (
+            {categories.map((cat: Category) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
