@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { JWTPayload } from "@/lib/types";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
   const limit = parseInt(searchParams.get("limit") || "12");
   const sort = searchParams.get("sort") || "newest";
 
-  const where: any = {};
+  const where: Prisma.ProductWhereInput = {};
   if (categoryId) where.categoryId = parseInt(categoryId);
   if (sellerId) where.sellerId = parseInt(sellerId);
   if (search) {
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
     ];
   }
 
-  let orderBy: any = { createdAt: "desc" };
+  let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" };
   if (sort === "price_asc") orderBy = { price: "asc" };
   if (sort === "price_desc") orderBy = { price: "desc" };
 
@@ -55,7 +56,8 @@ export async function GET(req: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error) {
+  } catch (err) {
+    console.error("Error fetching products:", err);
     return NextResponse.json({ error: "Error fetching products" }, { status: 500 });
   }
 }
@@ -67,9 +69,8 @@ export async function POST(req: Request) {
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    // Fix: Login uses 'sub' for user ID, not 'userId'
-    const userId = decoded.sub || decoded.userId; 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    const userId = Number(decoded.sub); 
 
     if (!userId) {
       return NextResponse.json({ error: "Invalid token: missing user ID" }, { status: 401 });
@@ -88,10 +89,10 @@ export async function POST(req: Request) {
     const arrayBuffer = await image.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResponse: any = await new Promise((resolve, reject) => {
+    const uploadResponse = await new Promise<{secure_url: string}>((resolve, reject) => {
       cloudinary.uploader.upload_stream({}, (error, result) => {
         if (error) reject(error);
-        else resolve(result);
+        else resolve(result!);
       }).end(buffer);
     });
 
@@ -111,8 +112,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(product);
-  } catch (error: any) {
-    console.error("CREATE PRODUCT ERROR:", error);
-    return NextResponse.json({ error: error.message || "Error creating product" }, { status: 500 });
+  } catch (err) {
+    console.error("CREATE PRODUCT ERROR:", err);
+    const errorMessage = err instanceof Error ? err.message : "Error creating product";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

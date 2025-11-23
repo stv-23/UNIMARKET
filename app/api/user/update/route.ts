@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import { verify } from "jsonwebtoken";
+import { JWTPayload } from "@/lib/types";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "secret";
@@ -15,10 +16,8 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let decoded: any;
-    try {
-      decoded = verify(token.value, JWT_SECRET);
-    } catch (error) {
+    const decoded = verify(token.value, JWT_SECRET) as JWTPayload;
+    if (!decoded.sub) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
@@ -55,6 +54,7 @@ export async function PATCH(req: Request) {
     });
 
     // No devolver la contraseña
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = updatedUser;
 
     return NextResponse.json({ user: userWithoutPassword }, { status: 200 });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { JWTPayload } from "@/lib/types";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (err) {
+    console.error("Error fetching product:", err);
     return NextResponse.json({ error: "Error fetching product" }, { status: 500 });
   }
 }
@@ -28,8 +30,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const token = cookieStore.get("unimarket_token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.userId;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    const userId = Number(decoded.sub);
     const { id: idStr } = await params;
     const id = parseInt(idStr);
 
@@ -42,7 +44,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ message: "Product deleted" });
-  } catch (error) {
+  } catch (err) {
+    console.error("Error deleting product:", err);
     return NextResponse.json({ error: "Error deleting product" }, { status: 500 });
   }
 }
@@ -53,8 +56,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const token = cookieStore.get("unimarket_token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.userId;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    const userId = Number(decoded.sub);
     const { id: idStr } = await params;
     const id = parseInt(idStr);
     const { isSold } = await req.json();
@@ -72,7 +75,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     });
 
     return NextResponse.json(updatedProduct);
-  } catch (error) {
+  } catch (err) {
+    console.error("Error updating product:", err);
     return NextResponse.json({ error: "Error updating product" }, { status: 500 });
   }
 }

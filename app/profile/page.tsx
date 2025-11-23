@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { User, Product } from "@/lib/types";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
-  const [activeProducts, setActiveProducts] = useState<any[]>([]);
-  const [soldProducts, setSoldProducts] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [activeProducts, setActiveProducts] = useState<Product[]>([]);
+  const [soldProducts, setSoldProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -31,8 +32,8 @@ export default function ProfilePage() {
             // Handle both array (old API) and object with products array (new API)
             const myProducts = Array.isArray(prodData) ? prodData : prodData.products;
             
-            setActiveProducts(myProducts.filter((p: any) => !p.isSold));
-            setSoldProducts(myProducts.filter((p: any) => p.isSold));
+            setActiveProducts(myProducts.filter((p: Product) => !p.isSold));
+            setSoldProducts(myProducts.filter((p: Product) => p.isSold));
           }
         } else {
           router.push("/auth/login");

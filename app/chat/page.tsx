@@ -45,7 +45,7 @@ function ChatContent() {
         const data = await res.json();
         setConversations(data);
         if (initialConversationId && !selectedConversation) {
-          const found = data.find((c: any) => c.id === parseInt(initialConversationId));
+          const found = data.find((c: Conversation) => c.id === parseInt(initialConversationId));
           if (found) setSelectedConversation(found);
         }
       }
@@ -102,7 +102,7 @@ function ChatContent() {
         setNewMessage("");
         // Optimistic update or wait for poll
         const msg = await res.json();
-        setMessages((prev: any) => [...prev, { ...msg, sender: currentUser }]);
+        setMessages((prev: Message[]) => [...prev, { ...msg, sender: currentUser }]);
       }
     } catch (error) {
       console.error("Error sending message", error);

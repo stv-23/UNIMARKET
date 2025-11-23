@@ -69,7 +69,7 @@ export default function Navbar() {
               {user && (
                 <button
                   onClick={() => setIsSidebarOpen(true)}
-                  className="flex-shrink-0 flex items-center mr-4 text-muted-foreground hover:text-primary transition-colors"
+                  className="shrink-0 flex items-center mr-4 text-muted-foreground hover:text-primary transition-colors"
                   aria-label="Abrir menú"
                 >
                   <svg
@@ -87,7 +87,7 @@ export default function Navbar() {
                   </svg>
                 </button>
               )}
-              <Link href="/home" className="flex-shrink-0 flex items-center">
+              <Link href="/home" className="shrink-0 flex items-center">
                 <span className="text-2xl font-bold text-primary">UniMarket</span>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
