@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface UserData {
   username: string;
@@ -64,20 +65,20 @@ export default function HomePage() {
         {/* CARDS DEL DASHBOARD */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1">
+          <Link href="/profile" className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1 cursor-pointer">
             <h3 className="text-lg font-semibold mb-2">Mi Perfil</h3>
             <p className="text-gray-600">Revisa o edita tu información personal.</p>
-          </div>
+          </Link>
 
-          <div className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1">
+          <Link href="/market" className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1 cursor-pointer">
             <h3 className="text-lg font-semibold mb-2">Productos</h3>
             <p className="text-gray-600">Gestiona tus ventas o publicaciones.</p>
-          </div>
+          </Link>
 
-          <div className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1">
-            <h3 className="text-lg font-semibold mb-2">Soporte</h3>
+          <Link href="/chat" className="bg-white p-6 shadow rounded-xl hover:shadow-lg transition transform hover:-translate-y-1 cursor-pointer">
+            <h3 className="text-lg font-semibold mb-2">Mensajes</h3>
             <p className="text-gray-600">¿Necesitas ayuda? Contáctanos.</p>
-          </div>
+          </Link>
 
         </div>
 

@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.userId;
+    const userId = Number(decoded.sub);
 
     const conversations = await prisma.conversation.findMany({
       where: {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.userId;
+    const userId = Number(decoded.sub);
 
     const { otherUserId } = await req.json();
 
