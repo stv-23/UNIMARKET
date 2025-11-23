@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛒 Unimarket
 
-## Getting Started
+**Unimarket** es una plataforma de mercado universitario moderna y segura, diseñada para facilitar la compra y venta de productos entre estudiantes.
 
-First, run the development server:
+![Unimarket App Icon](/public/icons/icon-192x192.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Características Principales
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **📱 PWA (Progressive Web App)**: Instalable en dispositivos móviles como una app nativa.
+- **🛍️ Mercado Completo**: Publicación de productos con imágenes, categorías y precios.
+- **💬 Chat en Tiempo Real**: Comunicación directa entre compradores y vendedores.
+- **🔍 Búsqueda y Filtros**: Encuentra lo que necesitas rápidamente con filtros por categoría, precio y ordenamiento.
+- **👤 Perfiles de Usuario**: Gestión de productos publicados y vendidos.
+- **🔐 Autenticación Segura**: Sistema de login y registro protegido.
+- **🌙 Modo Oscuro**: Interfaz elegante y amigable con la vista.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tecnologías Utilizadas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router), React, TypeScript.
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/).
+- **Base de Datos**: [PostgreSQL](https://www.postgresql.org/) (alojada en [Neon](https://neon.tech/)).
+- **ORM**: [Prisma](https://www.prisma.io/).
+- **Imágenes**: [Cloudinary](https://cloudinary.com/).
+- **Autenticación**: JWT (JSON Web Tokens).
 
-## Learn More
+## 📦 Instalación y Configuración
 
-To learn more about Next.js, take a look at the following resources:
+1.  **Clonar el repositorio**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```bash
+    git clone https://github.com/tu-usuario/unimarket.git
+    cd unimarket
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2.  **Instalar dependencias**:
 
-## Deploy on Vercel
+    ```bash
+    npm install
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3.  **Configurar variables de entorno**:
+    Crea un archivo `.env` en la raíz del proyecto y añade tus credenciales (ver `.env.example`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4.  **Inicializar la base de datos**:
+
+    ```bash
+    npx prisma generate
+    npx prisma migrate deploy
+    ```
+
+5.  **Correr el servidor de desarrollo**:
+    ```bash
+    npm run dev
+    ```
+
+## 🌐 Despliegue
+
+Este proyecto está optimizado para ser desplegado en **Vercel**.
+
+1.  Sube tu código a GitHub.
+2.  Importa el proyecto en Vercel.
+3.  Configura las variables de entorno en el panel de Vercel.
+4.  ¡Listo!
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia **Proprietaria**.
+Todos los derechos reservados. No se permite la distribución ni modificación de este código sin autorización previa.
+
+Desarrollado con ❤️ para la comunidad universitaria.
