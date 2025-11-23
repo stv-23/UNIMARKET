@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { JWTPayload } from "@/lib/types";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
     const token = cookieStore.get("unimarket_token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
     const userId = Number(decoded.sub);
 
     const conversations = await prisma.conversation.findMany({
@@ -43,7 +44,8 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json(conversations);
-  } catch (error) {
+  } catch (err) {
+    console.error("Error fetching conversations:", err);
     return NextResponse.json({ error: "Error fetching conversations" }, { status: 500 });
   }
 }
@@ -54,7 +56,7 @@ export async function POST(req: Request) {
     const token = cookieStore.get("unimarket_token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
     const userId = Number(decoded.sub);
 
     const { otherUserId } = await req.json();
@@ -86,7 +88,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(conversation);
-  } catch (error) {
+  } catch (err) {
+    console.error("Error creating conversation:", err);
     return NextResponse.json({ error: "Error creating conversation" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { JWTPayload } from "@/lib/types";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ export async function GET() {
     const token = cookieStore.get("unimarket_token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
     const userId = Number(decoded.sub);
 
     // Count unread messages where the user is NOT the sender
