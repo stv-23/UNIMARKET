@@ -6,11 +6,19 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { email, name, password } = await req.json();
+    const { email, name, password, termsAccepted, cookiePolicyAccepted } = await req.json();
 
     if (!email || !name || !password) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
+        { status: 400 }
+      );
+    }
+
+    // Validate terms acceptance
+    if (!termsAccepted || !cookiePolicyAccepted) {
+      return NextResponse.json(
+        { error: "Debes aceptar los Términos y Condiciones y la Política de Cookies" },
         { status: 400 }
       );
     }
@@ -30,12 +38,15 @@ export async function POST(req: Request) {
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear usuario
+    // Crear usuario con timestamps de aceptación
+    const now = new Date();
     const user = await prisma.user.create({
       data: {
         email,
         name,
         password: hashedPassword,
+        termsAcceptedAt: termsAccepted ? now : null,
+        cookiePolicyAcceptedAt: cookiePolicyAccepted ? now : null,
       },
     });
 
