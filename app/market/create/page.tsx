@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Category } from "@prisma/client";
 
 export default function CreateProductPage() {
   const router = useRouter();
