@@ -15,6 +15,7 @@ model User {
   bio      String?
   university String?
   birthDate DateTime?
+  profilePicture String?
   termsAcceptedAt DateTime?
   cookiePolicyAcceptedAt DateTime?
   products      Product[]

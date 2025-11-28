@@ -12,6 +12,7 @@ export interface User {
   bio?: string;
   university?: string;
   birthDate?: Date;
+  profilePicture?: string;
 }
 
 export interface Product {

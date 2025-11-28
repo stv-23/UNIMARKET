@@ -22,7 +22,7 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { name, email, bio, university, birthDate } = body;
+    const { name, email, bio, university, birthDate, profilePicture } = body;
 
     // Validación de edad (18+)
     if (birthDate) {
@@ -50,6 +50,7 @@ export async function PATCH(req: Request) {
         bio,
         university,
         birthDate: birthDate ? new Date(birthDate) : undefined,
+        profilePicture,
       },
     });
 

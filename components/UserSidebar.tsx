@@ -9,6 +9,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  profilePicture?: string;
 }
 
 interface UserSidebarProps {
@@ -83,11 +84,19 @@ export default function UserSidebar({ isOpen, onClose, user, unreadCount = 0 }: 
           {/* User Profile Section */}
           <div className="p-6 border-b border-border bg-muted/30">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-2xl font-bold text-primary">
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-primary">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground truncate">
                   {user.name}

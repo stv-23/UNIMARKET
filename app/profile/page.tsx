@@ -88,9 +88,25 @@ export default function ProfilePage() {
       {/* User Info */}
       <div className="bg-card shadow-xl border border-border overflow-hidden sm:rounded-xl mb-12">
         <div className="px-6 py-6 sm:px-8 flex justify-between items-center bg-card/50">
-          <div>
-            <h3 className="text-2xl leading-6 font-bold text-primary">Perfil de Usuario</h3>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Detalles personales y cuenta.</p>
+          <div className="flex items-center gap-4">
+            {/* Profile Picture */}
+            {user.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.name}
+                className="w-20 h-20 rounded-full object-cover border-4 border-primary/20"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-4 border-primary/20">
+                <span className="text-3xl font-bold text-primary">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+            <div>
+              <h3 className="text-2xl leading-6 font-bold text-primary">Perfil de Usuario</h3>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Detalles personales y cuenta.</p>
+            </div>
           </div>
           <div className="flex gap-3 flex-wrap justify-end">
             <Link href="/profile/edit" className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 text-sm font-medium transition-colors">

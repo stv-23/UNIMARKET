@@ -7,6 +7,7 @@ export default function EditProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -14,7 +15,10 @@ export default function EditProfilePage() {
     bio: "",
     university: "",
     birthDate: "",
+    profilePicture: "",
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,7 +40,13 @@ export default function EditProfilePage() {
             bio: user.bio || "",
             university: user.university || "",
             birthDate: formattedDate,
+            profilePicture: user.profilePicture || "",
           });
+          
+          // Set preview URL if user has a profile picture
+          if (user.profilePicture) {
+            setPreviewUrl(user.profilePicture);
+          }
         } else {
           router.push("/auth/login");
         }
@@ -54,10 +64,72 @@ export default function EditProfilePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setError("Por favor selecciona un archivo de imagen válido");
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("La imagen debe ser menor a 5MB");
+        return;
+      }
+      
+      setSelectedImage(file);
+      setError("");
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
+
+    let profilePictureUrl = formData.profilePicture;
+
+    // Upload image if a new one was selected
+    if (selectedImage) {
+      setUploading(true);
+      try {
+        const imageFormData = new FormData();
+        imageFormData.append("image", selectedImage);
+
+        const uploadRes = await fetch("/api/upload/profile-picture", {
+          method: "POST",
+          body: imageFormData,
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          profilePictureUrl = uploadData.url;
+        } else {
+          const uploadError = await uploadRes.json();
+          setError(uploadError.error || "Error al subir la imagen");
+          setSaving(false);
+          setUploading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Error uploading image:", err);
+        setError("Error al subir la imagen");
+        setSaving(false);
+        setUploading(false);
+        return;
+      } finally {
+        setUploading(false);
+      }
+    }
 
     // Validación de edad básica en frontend
     if (formData.birthDate) {
@@ -79,7 +151,7 @@ export default function EditProfilePage() {
       const res = await fetch("/api/user/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, profilePicture: profilePictureUrl }),
       });
 
       if (res.ok) {
@@ -120,6 +192,54 @@ export default function EditProfilePage() {
                 </div>
               </div>
             )}
+
+            {/* Profile Picture Upload */}
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Foto de Perfil
+              </label>
+              <div className="flex items-center gap-6">
+                {/* Preview */}
+                <div className="relative">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border-4 border-primary/20">
+                      <span className="text-3xl font-bold text-primary">
+                        {formData.name.charAt(0).toUpperCase() || "?"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Upload Button */}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    id="profile-picture"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="profile-picture"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 border border-border rounded-lg shadow-sm text-sm font-medium text-foreground bg-muted hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {selectedImage ? "Cambiar Imagen" : "Seleccionar Imagen"}
+                  </label>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    PNG, JPG, GIF hasta 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-muted-foreground">
@@ -217,10 +337,10 @@ export default function EditProfilePage() {
               </button>
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saving || uploading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-lg shadow-blue-900/20 text-sm font-bold text-primary-foreground bg-primary hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-all"
               >
-                {saving ? "Guardando..." : "Guardar Cambios"}
+                {uploading ? "Subiendo imagen..." : saving ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
           </form>
