@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
+// const JWT_SECRET = process.env.JWT_SECRET!; // Moved inside handler for safety
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "3600";
 
 function createCookie(token: string) {
@@ -20,6 +20,11 @@ function createCookie(token: string) {
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not defined");
+      return NextResponse.json({ error: "Error de configuración del servidor" }, { status: 500 });
+    }
+
     const { email, password } = await req.json();
 
     if (!email || !password) {
@@ -34,7 +39,7 @@ export async function POST(req: Request) {
 
     // Payload mínimo
     const payload = { sub: user.id, email: user.email };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: Number(JWT_EXPIRES_IN) });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: Number(JWT_EXPIRES_IN) });
 
     const cookie = createCookie(token);
     const res = NextResponse.json({
@@ -44,8 +49,8 @@ export async function POST(req: Request) {
     res.headers.set("Set-Cookie", cookie);
     return res;
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    console.error("LOGIN ERROR:", err);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
 

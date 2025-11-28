@@ -5,7 +5,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { serialize } from "cookie";
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
+// const JWT_SECRET = process.env.JWT_SECRET!; // Moved inside handler
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +17,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not defined");
+      return NextResponse.json({ error: "Configuration error" }, { status: 500 });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
 
     if (!decoded || typeof decoded === "string" || !decoded.sub) {
       return NextResponse.json(
