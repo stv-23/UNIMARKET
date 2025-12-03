@@ -56,15 +56,20 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Check if there's already a window open
+      // Check if there's already a window open matching the URL
       for (const client of clientList) {
-        if (client.url.includes('/chat') && 'focus' in client) {
-          return client.focus().then(() => {
-            // Navigate to the specific conversation if possible
-            if (urlToOpen && client.navigate) {
-              return client.navigate(urlToOpen);
-            }
-            return client;
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      // Check if there is any window open for the app
+      for (const client of clientList) {
+        if (client.url.includes(self.registration.scope) && 'focus' in client) {
+          return client.focus().then((client) => {
+             if (client.navigate) {
+                return client.navigate(urlToOpen);
+             }
           });
         }
       }

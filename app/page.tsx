@@ -72,7 +72,7 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/chat"
+            href="/ai-support"
             className="group bg-card border border-border rounded-xl p-6 hover:shadow-2xl hover:shadow-blue-900/20 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
           >
             <div className="text-4xl mb-4">💬</div>
