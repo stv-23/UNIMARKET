@@ -37,6 +37,7 @@ export default function UserSidebar({ isOpen, onClose, user, unreadCount = 0 }: 
     { href: "/market", label: "Mercado", icon: "🛒" },
     { href: "/market/create", label: "Vender Producto", icon: "➕" },
     { href: "/chat", label: "Mensajes", icon: "💬" },
+    { href: "/ai-support", label: "Chat de Soporte", icon: "🤖" },
   ];
 
   if (!user) return null;

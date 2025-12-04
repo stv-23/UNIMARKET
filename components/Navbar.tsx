@@ -106,6 +106,11 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
+                {user && (
+                  <Link href="/ai-support" className="text-muted-foreground hover:text-primary inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-primary text-sm font-medium transition-colors">
+                    Chat de Soporte
+                  </Link>
+                )}
                 {/* Add more links here */}
               </div>
             </div>
