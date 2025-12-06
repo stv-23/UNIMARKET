@@ -1,13 +1,38 @@
 "use client";
 
-import { useChat } from 'ai/react';
-import { useRef, useEffect } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { useRef, useEffect, useState } from 'react';
 
 export default function AISupportPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { messages, sendMessage, status } = useChat({
     api: '/api/chat/support',
-  });
+  } as any);
   
+  const [input, setInput] = useState('');
+  const isLoading = status === 'submitted' || status === 'streaming';
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    
+    // Optimistically clear input
+    const currentInput = input;
+    setInput('');
+    
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await sendMessage({ role: 'user', content: currentInput } as any);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setInput(currentInput); // Restore input on error
+    }
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,7 +53,7 @@ export default function AISupportPage() {
           </div>
         )}
         
-        {messages.map(m => (
+        {messages.map((m: any) => (
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
               m.role === 'user' 
