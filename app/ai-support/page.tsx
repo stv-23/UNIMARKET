@@ -1,19 +1,12 @@
 "use client";
 
-import { useChat, UseChatOptions } from '@ai-sdk/react';
+import { useChat, UseChatOptions, UIMessage } from '@ai-sdk/react';
 import { useRef, useEffect, useState } from 'react';
-
-interface UserMessage {
-  id: string;
-  role: string;
-  content: string;
-}
 
 export default function AISupportPage() {
   const { messages, sendMessage, status } = useChat({
     api: '/api/chat/support',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as unknown as UseChatOptions<any>);
+  } as UseChatOptions<UIMessage> & { api: string });
   
   const [input, setInput] = useState('');
   const isLoading = status === 'submitted' || status === 'streaming';
@@ -37,7 +30,7 @@ export default function AISupportPage() {
       setInput(currentInput); // Restore input on error
     }
   };
-
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,7 +51,7 @@ export default function AISupportPage() {
           </div>
         )}
         
-        {messages.map((m: UserMessage) => (
+        {messages.map((m: UIMessage & { content?: string }) => (
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
               m.role === 'user' 
