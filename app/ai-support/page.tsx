@@ -1,13 +1,19 @@
 "use client";
 
-import { useChat } from '@ai-sdk/react';
+import { useChat, UseChatOptions } from '@ai-sdk/react';
 import { useRef, useEffect, useState } from 'react';
 
+interface UserMessage {
+  id: string;
+  role: string;
+  content: string;
+}
+
 export default function AISupportPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { messages, sendMessage, status } = useChat({
     api: '/api/chat/support',
-  } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as unknown as UseChatOptions<any>);
   
   const [input, setInput] = useState('');
   const isLoading = status === 'submitted' || status === 'streaming';
@@ -25,8 +31,7 @@ export default function AISupportPage() {
     setInput('');
     
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await sendMessage({ role: 'user', content: currentInput } as any);
+      await sendMessage({ role: 'user', content: currentInput });
     } catch (error) {
       console.error('Failed to send message:', error);
       setInput(currentInput); // Restore input on error
@@ -53,7 +58,7 @@ export default function AISupportPage() {
           </div>
         )}
         
-        {messages.map((m: any) => (
+        {messages.map((m: UserMessage) => (
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
               m.role === 'user' 
